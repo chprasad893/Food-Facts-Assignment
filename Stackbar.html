@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+<head>
+	<style>
+  .bar{
+    fill: gold;
+  }
+  /*.bar:hover{
+    fill: yellow;
+
+  }*/
+  .stack{
+    fill:orange;
+  }
+	.axis {
+	  font: 15px sans-serif;
+		font-weight: bold;
+	}
+	.axis path,
+	.axis line {
+	  fill: none;
+	  stroke: #000;
+	  shape-rendering: crispEdges;
+	}
+	</style>
+</head>
+<body>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/d3-legend/1.1.0/d3-legend.js"></script>
+<script>
+
+  d3.json("File-1.json", function(error, data) {
+		// console.log(data);
+		// console.log( data[0].sugar+data[1].sugar);
+    data.forEach(function(d) {
+        // d.country = d.country;
+        // d.sugar = d.sugar;
+        // d.salt=d.salt;
+        d.total=d.sugar+d.salt;
+    });
+
+  var margin = {top: 100, right: 20, bottom: 90, left: 250},
+      width = 1200 - margin.left - margin.right,
+      height = 600 - margin.top - margin.bottom;
+
+  var x = d3.scale.ordinal().rangeRoundBands([0, width], .05);
+  var y = d3.scale.linear().range([height, 0]);
+
+  var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom");
+
+  var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left");
+
+  var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform","translate(" + margin.left + "," + margin.top + ")");
+
+  x.domain(data.map(function(d) { return d.country; }));
+  y.domain([0, d3.max(data, function(d) { return d.total; })]);
+
+  svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis)
+    .append("text")
+      .style("text-anchor", "end")
+      .attr("dx", "-.8em")
+      .attr("dy", "-.55em")
+			.attr("font-size",30)
+      .attr("transform", "rotate(0)" )
+			.attr("y", +100)
+				.attr("x", 520)
+			.text("country");
+
+
+  svg.append("g")
+      .attr("class", "y axis")
+      .call(yAxis)
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", -75)
+			  .attr("x", -100)
+      .attr("dy", ".71em")
+      .attr("font-size",20)
+      .style("text-anchor", "end")
+      .text("Salt & Sugar Consumption");
+
+  svg.selectAll("bar")
+      .data(data)
+      .enter().append("rect")
+      .attr("class", "bar")
+      .attr("x", function(d) { return x(d.country); })
+      .attr("width", x.rangeBand())
+      .attr("y", function(d) { return y(d.total); })
+      .attr("height", function(d) { return height - y(d.total); });
+
+      svg.selectAll("bar")
+          .data(data)
+          .enter().append("rect")
+          .attr("class", "bar stack")
+          .attr("x", function(d) { return x(d.country); })
+          .attr("width", x.rangeBand())
+          .attr("y", function(d) { return y(d.total); })
+          .attr("height", function(d) { return height - y(d.sugar); });
+
+
+					var linear = d3.scale.ordinal()
+	.domain(["Sugar Consumption","Salt Consumption"])
+	.range(["orange", "gold"]);
+
+	 var svg = d3.select("svg");
+
+svg.append("g")
+		 .attr("class", "legendLinear")
+		.attr("transform", "translate(1000,50)");
+
+var legendLinear = d3.legend.color()
+	.shapeWidth(30)
+	.orient('vertical')
+	 .scale(linear);
+
+svg.select(".legendLinear")
+	.call(legendLinear);
+
+});
+</script>
+</body>
+</html>
